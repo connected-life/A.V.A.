@@ -59,7 +59,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='dragonfire',
+    name='ava',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
@@ -70,11 +70,11 @@ setup(
     long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://github.com/mertyildiran/Dragonfire',
+    url='https://github.com/MCYBA/A.V.A..git',
 
     # Author details
-    author='Mehmet Mert Yıldıran',
-    author_email='mert.yildiran@bil.omu.edu.tr',
+    author='Cem Baybars GÜÇLÜ',
+    author_email='cem.baybars@gmail.com',
 
     # Choose your license
     license='MIT',
@@ -167,7 +167,7 @@ setup(
     # have to be included in MANIFEST.in as well.
     package_data={
         # If any package contains data files, include them:
-        'dragonfire': ['realhud/animation/*', 'sr/models/english/*']
+        'ava': ['realhud/animation/*', 'sr/models/english/*']
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
@@ -181,10 +181,10 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'dragonfire=dragonfire:initiate',
+            'ava=ava:initiate',
         ],
     },
     ext_modules=[
-        Extension('realhud', ['dragonfire/realhud/realhud.c'],
+        Extension('realhud', ['ava/realhud/realhud.c'],
                   **pkgconfig('gtk+-2.0 x11 xext'))
     ])

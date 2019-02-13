@@ -11,9 +11,9 @@ addons:
             - xvfb
 cache:
     directories:
-        - /usr/share/dragonfire
+        - /usr/share/ava
 before_install:
-    - mysql -u root -e "CREATE DATABASE dragonfire;"
+    - mysql -u root -e "CREATE DATABASE ava;"
 install:
     - sudo ./install-dev.sh --no-model
     - sudo pip3 install pytest-faulthandler

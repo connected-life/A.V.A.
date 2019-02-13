@@ -1,4 +1,4 @@
-# Dragonfire
+# m-cyba
 
 <img src="https://travis-ci.org/DragonComputer/Dragonfire.svg?branch=master" align="right" />
 
@@ -8,7 +8,7 @@
 
 <img src="https://opencollective.com/dragonfire/tiers/sponsor/badge.svg?label=sponsor&color=brightgreen" align="right" />
 
-the open-source virtual assistant for Ubuntu based Linux distributions
+the augmented virtual assistant for Ubuntu based Linux distributions
 
 ![Dragonfire](https://raw.githubusercontent.com/DragonComputer/Dragonfire/master/docs/img/demo.gif)
 

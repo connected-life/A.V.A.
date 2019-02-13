@@ -156,7 +156,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'dragonfire', 'Dragonfire Documentation',
+    (master_doc, 'ava', 'Dragonfire Documentation',
      [author], 1)
 ]
 
@@ -208,16 +208,16 @@ MOCK_MODULES = [
     'realhud',
     'spacy',
     'youtube_dl',
-    'dragonfire.deepconv',
-    'dragonfire.deepconv.model',
-    'dragonfire.deepconv.textdata',
-    'dragonfire.deepconv.corpus.cornelldata',
-    'dragonfire.deepconv.corpus.lightweightdata',
-    'dragonfire.deepconv.corpus.opensubsdata',
-    'dragonfire.deepconv.corpus.scotusdata',
-    'dragonfire.deepconv.corpus.ubuntudata',
-    'dragonfire.deepconv.corpus',
-    'dragonfire.sr.decoder_test',
-    'dragonfire.sr.experimental'
+    'ava.deepconv',
+    'ava.deepconv.model',
+    'ava.deepconv.textdata',
+    'ava.deepconv.corpus.cornelldata',
+    'ava.deepconv.corpus.lightweightdata',
+    'ava.deepconv.corpus.opensubsdata',
+    'ava.deepconv.corpus.scotusdata',
+    'ava.deepconv.corpus.ubuntudata',
+    'ava.deepconv.corpus',
+    'ava.sr.decoder_test',
+    'ava.sr.experimental'
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)

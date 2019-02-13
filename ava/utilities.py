@@ -114,7 +114,7 @@ class TextToAction:
                     msg += " closed"
                 else:
                     msg += " is not open"
-                subprocess.Popen(["notify-send", "Dragonfire", msg])
+                # subprocess.Popen(["notify-send", "Dragonfire", msg])  # triggered individually for each browser
         return msg
 
     def say(self, msg, dynamic=False, end=False, cmd=None):

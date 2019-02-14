@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-.. module:: test_dragonfire
+.. module:: test_ava
     :platform: Unix
-    :synopsis: test module for the top-level module of Dragonfire.
+    :synopsis: test module for the top-level module of A.V.A..
 
 .. moduleauthor:: Mehmet Mert Yıldıran <mert.yildiran@bil.omu.edu.tr>
 """
@@ -45,32 +45,32 @@ def virtual_assistant():
 
 @pytest.mark.parametrize("command, response", [
     (76, False),
-    ("enough", "Dragonfire quiets."),
-    ("shut up", "Dragonfire quiets."),
-    ("What is your name?", "My name is Dragonfire."),
+    ("enough", "A.V.A. quiets."),
+    ("shut up", "A.V.A. quiets."),
+    ("What is your name?", "My name is A.V.A.."),
     ("What is your gender?", "I have a female voice but I don't have a gender identity. I'm a computer program, " + user_prefix + "."),
     ("Who am I?", "Your name is " + user_full_name + ", " + user_prefix + "."),
-    ("open Blender", "Blender 3D computer graphics software"),
-    ("run draw", "Opening LibreOffice Draw"),
-    ("open impress", "Opening LibreOffice Impress"),
-    ("open math", "Opening LibreOffice Math"),
-    ("open writer", "Opening LibreOffice Writer"),
-    ("open Gimp", "Opening the photo editor software."),
-    ("open Inkscape", "Opening the vectorial drawing software."),
-    ("open office suite", "Opening LibreOffice"),
-    ("run Blender", "Blender 3D computer graphics software"),
-    ("open Kdenlive", "Opening the video editor software."),
-    ("open browser", "Web browser"),
-    ("start Chrome", "Web browser"),
-    ("open Firefox", "Web browser"),
-    ("open Steam", "Opening Steam Game Store"),
+    ("open Blender", "3D computer graphics software"),
+    ("run draw", "LibreOffice Draw"),
+    ("open impress", "LibreOffice Impress"),
+    ("open math", "LibreOffice Math"),
+    ("open writer", "LibreOffice Writer"),
+    ("open Gimp", "The photo editor software"),
+    ("open Inkscape", "The vectorial drawing software"),
+    ("open office suite", "LibreOffice"),
+    ("run Blender", "3D computer graphics software"),
+    ("open Kdenlive", "The video editor software"),
+    ("open browser", "Web Browser"),
+    ("start Chrome", "Web Browser"),
+    ("open Firefox", "Web Browser"),
+    ("open Steam", "Steam Game Store"),
     ("open files", "File Manager"),
     ("open file manager", "File Manager"),
     ("open camera", "Camera"),
     ("open calendar", "Calendar"),
     ("open calculator", "Calculator"),
     ("open software center", "Software Center"),
-    ("open console", "console"),
+    ("open console", "Terminal"),
     ("I'm a girl", "Pardon, my lady."),
     ("call me master", "OK, master."),
     ("I'm a boy", "Pardon, sir."),
@@ -106,7 +106,6 @@ def test_builtin_commands(virtual_assistant, command, response):
 def test_builtin_commands_sleep(virtual_assistant):
     assert virtual_assistant.command("open files") == ""
     assert virtual_assistant.command("ava") in hey_answers
-    assert virtual_assistant.command("dragon fire") in hey_answers
     assert virtual_assistant.command("go to sleep") == "I'm going to sleep"
     assert virtual_assistant.command("hey") in hey_answers
     assert virtual_assistant.command("stop listening") == "I'm going to sleep"

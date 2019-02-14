@@ -27,12 +27,12 @@ NC='\033[0m' # No Color
 CHECKSUM="21198f6b6f24ef1f45082aebc6fd452e"
 CHECKSUM2="c775d819ffc06118053a48808003df84"
 
-DRAGONFIRE_DIR=/usr/share/dragonfire
+DRAGONFIRE_DIR=/usr/share/ava
 if [ ! -d "$DRAGONFIRE_DIR" ]; then
   mkdir $DRAGONFIRE_DIR
 fi
 
-DEEPSPEECH_DIR=/usr/share/dragonfire/deepspeech
+DEEPSPEECH_DIR=/usr/share/ava/deepspeech
 if [ "$NO_MODEL" = false ] ; then
     if [ ! -d "$DEEPSPEECH_DIR" ]; then
       mkdir $DEEPSPEECH_DIR
@@ -44,7 +44,7 @@ if [ "$NO_MODEL" = false ] ; then
     fi
 fi
 
-DEEPCONV_DIR=/usr/share/dragonfire/deepconv
+DEEPCONV_DIR=/usr/share/ava/deepconv
 if [ ! -d "$DEEPCONV_DIR" ]; then
   mkdir $DEEPCONV_DIR
 fi
@@ -54,8 +54,8 @@ if [ ! ${verified::-3} = "$CHECKSUM2" ]; then
   wget -nc -O - https://github.com/DragonComputer/Dragonfire/releases/download/v0.9.9/deepconv-v2.tar.gz | tar xvfz -
 fi
 
-pip3 install --upgrade wikipedia==1.4.0 PyUserInput==0.1.11 tinydb==3.9.0.post1 youtube_dl spacy==2.0.13 pyowm==2.9.0 tensorflow==1.0.0 deepspeech==0.4.1 SpeechRecognition tweepy==3.6.0 metadata_parser==0.9.20 hug==2.4.0 hug-middleware-cors==1.0.0 waitress==1.1.0 requests==2.20.0 pyjwt==1.6.4 SQLAlchemy==1.2.10 PyMySQL==0.8.1 msgpack==0.5.6 psutil && \
+pip3 install --upgrade wikipedia==1.4.0 PyUserInput==0.1.11 tinydb==3.9.0.post1 youtube_dl spacy==2.0.13 pyowm==2.9.0 tensorflow==1.0.0 deepspeech==0.4.1 SpeechRecognition tweepy==3.6.0 metadata_parser==0.9.20 hug==2.4.0 hug-middleware-cors==1.0.0 waitress==1.1.0 requests==2.20.0 pyjwt==1.6.4 SQLAlchemy==1.2.10 PyMySQL==0.8.1 msgpack==0.5.6 psutil>=5.4.2 && \
 pip3 install --upgrade flake8 sphinx sphinx_rtd_theme recommonmark m2r pytest && \
 python3 -m spacy download en && \
 pip3 install https://github.com/huggingface/neuralcoref-models/releases/download/en_coref_sm-3.0.0/en_coref_sm-3.0.0.tar.gz && \
-printf "import nltk\nnltk.download('names')\nnltk.download('brown')\nnltk.download('wordnet')\nnltk.download('punkt')" | python3 && echo -e "\n\n${GREEN}Dragonfire is successfully installed to your computer.${NC}\n"
+printf "import nltk\nnltk.download('names')\nnltk.download('brown')\nnltk.download('wordnet')\nnltk.download('punkt')" | python3 && echo -e "\n\n${GREEN}A.V.A. is successfully installed to your computer.${NC}\n"

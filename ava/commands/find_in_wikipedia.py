@@ -22,13 +22,13 @@ class FindInWikiCommand():
     """Class to contains searching in wikipedia process with simply if-else struct.
     """
 
-    def first_compare(self, doc, h, user_answering_wiki, userin, user_prefix):
+    def first_compare(self, doc, h, user_answering, userin, user_prefix):
         """Method to ava's first command struct of searching in wikipedia ability.
 
         Args:
             doc:                       doc of com from __init__.py
             h:                         doc helper from __init__.py
-            user_answering_wiki:       User answering string array.
+            user_answering:       User answering string array.
             userin:                    :class:`ava.utilities.TextToAction` instance.
             user_prefix:               user's preferred titles.
         """
@@ -57,10 +57,10 @@ class FindInWikiCommand():
                         userin.execute([" "], "Wikipedia connection error.")
                         return userin.say("Sorry, " + user_prefix + ". But I'm unable to connect to Wikipedia servers.")
                     except wikipedia.exceptions.DisambiguationError as disambiguation:
-                        user_answering_wiki['status'] = True
-                        user_answering_wiki['for'] = 'wikipedia'
-                        user_answering_wiki['reason'] = 'disambiguation'
-                        user_answering_wiki['options'] = disambiguation.options[:3]
+                        user_answering['status'] = True
+                        user_answering['for'] = 'wikipedia'
+                        user_answering['reason'] = 'disambiguation'
+                        user_answering['options'] = disambiguation.options[:3]
                         notify = "Wikipedia disambiguation. Which one of these you meant?:\n - " + disambiguation.options[0]
                         msg = user_prefix + ", there is a disambiguation. Which one of these you meant? " + disambiguation.options[0]
                         for option in disambiguation.options[1:3]:
@@ -73,20 +73,20 @@ class FindInWikiCommand():
                         pass
         return None
 
-    def second_compare(self, com, user_answering_wiki, userin, user_prefix):
+    def second_compare(self, com, user_answering, userin, user_prefix):
         """Method to ava's first command struct of searching in wikipedia ability.
 
         Args:
             com (str):                 User's command.
-            user_answering_wiki:       User answering string array.
+            user_answering:       User answering string array.
             userin:                    :class:`ava.utilities.TextToAction` instance.
             user_prefix:               user's preferred titles.
         """
 
-        if user_answering_wiki['status']:
+        if user_answering['status'] and user_answering['for'] == 'wikipedia':
             if com.startswith("FIRST") or com.startswith("THE FIRST") or com.startswith("SECOND") or com.startswith(
                     "THE SECOND") or com.startswith("THIRD") or com.startswith("THE THIRD"):
-                user_answering_wiki['status'] = False
+                user_answering['status'] = False
                 selection = None
                 if com.startswith("FIRST") or com.startswith("THE FIRST"):
                     selection = 0
@@ -95,24 +95,23 @@ class FindInWikiCommand():
                 elif com.startswith("THIRD") or com.startswith("THE THIRD"):
                     selection = 2
 
-                if user_answering_wiki['for'] == 'wikipedia':
-                    with nostderr():
-                        search_query = user_answering_wiki['options'][selection]
-                        try:
-                            wikiresult = wikipedia.search(search_query)
-                            if len(wikiresult) == 0:
-                                userin.say(
-                                    "Sorry, " + user_prefix + ". But I couldn't find anything about " + search_query + " in Wikipedia.")
-                                return True
-                            wikipage = wikipedia.page(wikiresult[0])
-                            wikicontent = "".join([i if ord(i) < 128 else ' ' for i in wikipage.content])
-                            wikicontent = re.sub(r'\([^)]*\)', '', wikicontent)
-                            userin.execute(["sensible-browser", wikipage.url], search_query)
-                            return userin.say(wikicontent, cmd=["sensible-browser", wikipage.url])
-                        except requests.exceptions.ConnectionError:
-                            userin.execute([" "], "Wikipedia connection error.")
-                            return userin.say(
-                                "Sorry, " + user_prefix + ". But I'm unable to connect to Wikipedia servers.")
-                        except Exception:
-                            return False
+                with nostderr():
+                    search_query = user_answering['options'][selection]
+                    try:
+                        wikiresult = wikipedia.search(search_query)
+                        if len(wikiresult) == 0:
+                            userin.say(
+                                "Sorry, " + user_prefix + ". But I couldn't find anything about " + search_query + " in Wikipedia.")
+                            return True
+                        wikipage = wikipedia.page(wikiresult[0])
+                        wikicontent = "".join([i if ord(i) < 128 else ' ' for i in wikipage.content])
+                        wikicontent = re.sub(r'\([^)]*\)', '', wikicontent)
+                        userin.execute(["sensible-browser", wikipage.url], search_query)
+                        return userin.say(wikicontent, cmd=["sensible-browser", wikipage.url])
+                    except requests.exceptions.ConnectionError:
+                        userin.execute([" "], "Wikipedia connection error.")
+                        return userin.say(
+                            "Sorry, " + user_prefix + ". But I'm unable to connect to Wikipedia servers.")
+                    except Exception:
+                        return False
         return None

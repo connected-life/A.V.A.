@@ -65,7 +65,7 @@ setup(
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
     version='1.0.1',
-    description='Dragonfire is an open source virtual assistant project for Ubuntu based Linux distributions',
+    description='A.V.A. is an open source augmented virtual assistant project for Ubuntu based Linux distributions',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
@@ -106,7 +106,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='virtual assistant machine learining artifical intelligence chat bot',
+    keywords='augmented virtual assistant machine learining artifical intelligence chat bot',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -145,7 +145,7 @@ setup(
         'SQLAlchemy==1.2.10',
         'PyMySQL==0.8.1',
         'msgpack==0.5.6',
-        'psutil'
+        'psutil>=5.4.2'
     ],
 
     # List additional groups of dependencies here (e.g. development

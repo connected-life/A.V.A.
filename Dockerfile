@@ -4,7 +4,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 ENV PYTHONUNBUFFERED 1
 
 # Maintainer
-MAINTAINER Mehmet Mert Yıldıran "mert.yildiran@bil.omu.edu.tr"
+MAINTAINER Cem Baybars GÜÇLÜ "cem.byabars@gmail.com"
 
 # Install all APT dependencies
 RUN apt-get update
@@ -25,11 +25,11 @@ RUN apt-get install -y python3-pip
 RUN pip3 install .
 
 # Define environment variables
-ENV DRAGONFIRE_DIR /usr/share/dragonfire
-ENV DEEPCONV_DIR /usr/share/dragonfire/deepconv
+ENV AVA_DIR /usr/share/ava
+ENV DEEPCONV_DIR /usr/share/ava/deepconv
 
 # Create the necessary directories for the Tensorflow models
-RUN mkdir $DRAGONFIRE_DIR
+RUN mkdir $AVA_DIR
 RUN mkdir $DEEPCONV_DIR
 
 # Download the DeepConversation Tensorflow model
@@ -40,7 +40,7 @@ RUN cd $DEEPCONV_DIR && tar xvfz deepconv-v2.tar.gz
 RUN apt-get -qqy install libssl-dev libffi-dev
 
 # Retry to install the Python package dependencies in case of a failure
-RUN pip3 install --upgrade PyAudio==0.2.11 wikipedia==1.4.0 PyUserInput==0.1.11 tinydb==3.9.0.post1 youtube_dl spacy==2.0.11 pyowm==2.8.0 tensorflow==1.0.0 deepspeech==0.4.1 SpeechRecognition tweepy==3.6.0 metadata_parser hug==2.4.0 hug-middleware-cors==1.0.0 waitress==1.1.0 PyMySQL==0.8.1 requests==2.18.4
+RUN pip3 install --upgrade PyAudio==0.2.11 wikipedia==1.4.0 PyUserInput==0.1.11 tinydb==3.9.0.post1 youtube_dl spacy==2.0.11 pyowm==2.8.0 tensorflow==1.0.0 deepspeech==0.4.1 SpeechRecognition tweepy==3.6.0 metadata_parser hug==2.4.0 hug-middleware-cors==1.0.0 waitress==1.1.0 PyMySQL==0.8.1 requests==2.18.4 psutil>=5.4.2
 
 # Download the spaCy English model
 RUN python3 -m spacy download en
@@ -49,13 +49,13 @@ RUN python3 -m spacy download en
 RUN printf "import nltk\nnltk.download('names')\nnltk.download('brown')\nnltk.download('wordnet')\nnltk.download('punkt')" | python3
 
 # Print success message
-RUN echo -e "\n\nDragonfire is successfully installed into the container.\n"
+RUN echo -e "\n\nA.V.A. is successfully installed into the container.\n"
 
 # Make port 3301 available to the world outside this container
 EXPOSE 3301
 
 # Start Dragonfire
-ENTRYPOINT ["dragonfire"]
+ENTRYPOINT ["ava"]
 
 # Default arguments
 CMD ["--server", "API_KEY"]

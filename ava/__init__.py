@@ -25,6 +25,7 @@ from multiprocessing import Event, Process  # Process-based “threading” inte
 from os.path import expanduser  # Common pathname manipulations
 from random import choice  # Generate pseudo-random numbers
 import shutil  # High-level file operations
+import readline #GNU readline Interface
 
 from ava.learn import Learner  # Submodule of Dragonfire that forms her learning ability
 from ava.takenote import NoteTaker  # Submodule of Dragonfire that forms her taking note ability
@@ -78,7 +79,7 @@ cli_execute_commands = CliExecuteCommands()
 keyboard_commands = KeyboardCommands()
 set_user_title_commands = SetUserTitleCommands()
 
-USER_ANSWERING_WIKI = {      # user answering for wikipedia search
+USER_ANSWERING = {      # user answering for wikipedia search
     'status': False,
     'for': None,
     'reason': None,
@@ -141,8 +142,9 @@ def start(args, userin):
     else:
         global user_full_name
         global user_prefix
+        global ava_name
         if args["cli"]:
-            her = VirtualAssistant(args, userin, user_full_name, user_prefix)
+            her = VirtualAssistant(args, userin, user_full_name, user_prefix, ava_name)
             while (True):
                 com = raw_input("Enter your command: ")
                 thread.start_new_thread(her.command, (com,))
@@ -150,13 +152,13 @@ def start(args, userin):
         elif args["gspeech"]:
             from ava.sr.gspeech import GspeechRecognizer
 
-            her = VirtualAssistant(args, userin, user_full_name, user_prefix)
+            her = VirtualAssistant(args, userin, user_full_name, user_prefix, ava_name)
             recognizer = GspeechRecognizer()
             recognizer.recognize(her)
         else:
             from ava.sr.deepspeech import DeepSpeechRecognizer
 
-            her = VirtualAssistant(args, userin, user_full_name, user_prefix)
+            her = VirtualAssistant(args, userin, user_full_name, user_prefix, ava_name)
             recognizer = DeepSpeechRecognizer()
             recognizer.recognize(her)
 
@@ -173,7 +175,7 @@ class VirtualAssistant():
 
     """
 
-    def __init__(self, args, userin, user_full_name="John Doe", user_prefix="sir", tw_user=None, testing=False):
+    def __init__(self, args, userin, user_full_name="John Doe", user_prefix="sir", ava_name="A.V.A.", tw_user=None, testing=False):
         """Initialization method of :class:`ava.VirtualAssistant` class.
 
         Args:
@@ -190,6 +192,7 @@ class VirtualAssistant():
         self.userin = userin
         self.user_full_name = user_full_name
         self.user_prefix = user_prefix
+        self.ava_name = ava_name
         self.userin.twitter_user = tw_user
         self.testing = testing
         self.inactive = False
@@ -228,6 +231,7 @@ class VirtualAssistant():
         userin = self.userin
         user_full_name = self.user_full_name
         user_prefix = self.user_prefix
+        ava_name = self.ava_name
         if self.testing:
             config_file = self.config_file
 
@@ -243,8 +247,29 @@ class VirtualAssistant():
         if args["verbose"]:
             userin.pretty_print_nlp_parsing_results(doc)
 
-        if self.inactive and not (h.directly_equal(["ava", "hey"]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up")) or (h.check_nth_lemma(0, "dragon") and h.check_nth_lemma(1, "fire") and h.max_word_count(2))):
+        if self.inactive and not (h.directly_equal(["ava", "hey"]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up"))):
             return ""
+        # if USER_ANSWERING['for'] == 'assistant_rename':
+        #     config_file.update({'name': com}, Query().datatype == 'name')
+        if USER_ANSWERING['status'] and USER_ANSWERING['for'] == 'execute':
+            if com.startswith("whatever") or com.startswith("give up") or com.startswith("not now") or com.startswith("forget it") or com.startswith("WHATEVER") or com.startswith("GIVE UP") or com.startswith("NOT NOW") or com.startswith("FORGET IT"):  # for writing interrupt while taking notes and creating reminders.
+                USER_ANSWERING['status'] = False
+                return userin.say(
+                    choice(["As you wish", "I understand", "Alright", "Ready whenever you want", "Get it"]) + choice([".", ", " + user_prefix + "."]))
+            if USER_ANSWERING['reason'] == 'install':
+                if com.startswith("yes") and com.endswith("yes") or com.startswith("yep") and com.endswith("yep") or com.startswith("okay") and com.endswith("okay") or h.check_deps_contains("do it"):
+                    USER_ANSWERING['reason'] = 'install verified'
+                    return userin.say("Choose one of following:\n" + USER_ANSWERING['options'])
+                else:
+                    USER_ANSWERING['status'] = False
+                    return userin.say("I won't install!")
+            if USER_ANSWERING['reason'] == 'install verified':
+                if com in USER_ANSWERING['options']:
+                    USER_ANSWERING['status'] = False
+                    cmds = [["konsole", "--command=sudo apt install " + com], ["gnome-terminal", "--command=sudo apt install " + com]]
+                    return userin.say(userin.execute(cmds, "Installing will start, Please enter your root password.", True, 3))
+                else:
+                    userin.say("Please repeat!")
 
         response = take_note_command.takenote_second_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)   #take note command.
         if response:
@@ -254,11 +279,11 @@ class VirtualAssistant():
         if response:
             return response
 
-        response = find_in_wiki_command.second_compare(com, USER_ANSWERING_WIKI, userin, user_prefix)
+        response = find_in_wiki_command.second_compare(com, USER_ANSWERING, userin, user_prefix)
         if response:
             return response
 
-        if h.directly_equal(["ava", "hey"]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up")) or (h.check_nth_lemma(0, "dragon") and h.check_nth_lemma(1, "fire") and h.max_word_count(2)):
+        if h.directly_equal(["ava", "hey"]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up")):
             self.inactive = False
             return userin.say(choice([
                 "Yes, " + user_prefix + ".",
@@ -269,15 +294,15 @@ class VirtualAssistant():
             ]))
         if (h.check_verb_lemma("go") and h.check_noun_lemma("sleep")) or (h.check_verb_lemma("stop") and h.check_verb_lemma("listen")):
             self.inactive = True
-            userin.execute(["echo"], "Dragonfire deactivated. To reactivate say 'Dragonfire!' or 'Wake Up!'")
+            userin.execute(["echo"], ava_name + " deactivated. To reactivate say '" + ava_name + "' or 'Wake Up!'")
             return userin.say("I'm going to sleep")
         if h.directly_equal(["enough"]) or (h.check_verb_lemma("shut") and h.check_nth_lemma(-1, "up")):
             tts_kill()
-            msg = "Dragonfire quiets."
+            msg = ava_name + " quiets."
             print(msg)
             return msg
         if h.check_wh_lemma("what") and h.check_deps_contains("your name"):
-            return userin.execute([" "], "My name is Dragonfire.", True)
+            return userin.execute([" "], "My name is " + ava_name + ".", True)
         if h.check_wh_lemma("what") and h.check_deps_contains("your gender"):
             return userin.say("I have a female voice but I don't have a gender identity. I'm a computer program, " + user_prefix + ".")
         if (h.check_wh_lemma("who") and h.check_text("I")) or (h.check_verb_lemma("say") and h.check_text("my") and h.check_lemma("name")):
@@ -296,17 +321,19 @@ class VirtualAssistant():
         if response:
             return response
 
-        response = cli_execute_commands.first_compare(h, userin)
-        if response:
-            return response
-
-        response = cli_execute_commands.second_compare(h, userin)
+        response = cli_execute_commands.compare(h, userin, USER_ANSWERING)
         if response:
             return response
 
         response = take_note_command.takenote_first_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)  # take note command
         if response:
             return response
+        if (h.check_verb_lemma("change") or h.check_verb_lemma("register")) and h.check_adj_lemma("your") and h.check_noun_lemma("name"):
+            response = com.replace("change your name", "")
+            response = response.replace("register your name", "")
+            if not response == "":
+                config_file.update({'name': response}, Query().datatype == 'name')
+                return userin.say("From now on my name is " + response + ".")
 
         response = set_user_title_commands.compare(doc, h, args, userin, config_file)
         if response:
@@ -345,7 +372,7 @@ class VirtualAssistant():
                 thread.interrupt_main()
             return response
 
-        response = find_in_wiki_command.first_compare(doc, h, USER_ANSWERING_WIKI, userin, user_prefix)
+        response = find_in_wiki_command.first_compare(doc, h, USER_ANSWERING, userin, user_prefix)
         if response:
             return response
 
@@ -406,6 +433,7 @@ def greet(userin):
     global user_full_name
     global user_prefix
     global config_file
+    global ava_name
 
     command = "getent passwd $LOGNAME | cut -d: -f5 | cut -d, -f1"
     user_full_name = os.popen(command).read()
@@ -413,6 +441,7 @@ def greet(userin):
     home = expanduser("~")
     config_file = TinyDB(home + '/.dragonfire_config.json')
     callme_config = config_file.search(Query().datatype == 'callme')
+    name_config = config_file.search(Query().datatype == 'name')
     if callme_config:
         user_prefix = callme_config[0]['title']
     else:
@@ -423,6 +452,11 @@ def greet(userin):
             gender = Classifier.gender(user_full_name.split(' ', 1)[0])
             config_file.insert({'datatype': 'gender', 'gender': gender})
             user_prefix = GENDER_PREFIX[gender]
+    if name_config:
+        ava_name = name_config[0]['name']
+    else:
+        config_file.insert({'datatype': 'name', 'name': "A.V.A."})
+        ava_name = "A.V.A."
 
     if datetime.time(4) < time < datetime.time(12):
         time_of_day = "morning"

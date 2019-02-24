@@ -85,35 +85,66 @@ class TextToAction:
             if self.speak:
                 self.say(msg)
             if not is_kill:
+                is_exist = False
+                distro = subprocess.getoutput("cat /etc/os-release | grep -oP '[a-zA-Z]+ [a-zA-Z]+'")  # for detection user's distrobution of system.
+                name = []
                 try:
-                    is_exist = False
-                    if cmds[0][0] != "":
+                    if cmds[0] != "":
                         time.sleep(duration)
-                        for cmd in cmds:
-                            if not subprocess.call("type " + cmd[0], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE):  # if given process exist, this function will return 0.
-                                subprocess.Popen(cmd, stdout=FNULL, stderr=FNULL)
-                                is_exist = True
+                        # DETERMINE THE DISTRO
+                        if cmds[0]['distro'] == 'All':
+                            name = cmds[0]['name']
+                        else:
+                            for cmd in cmds:
+                                if cmd['distro'] in distro:
+                                    name = cmd['name']
+                        if not name:  # If system's distro is not defined into the dictionary of programs, use the default one.
+                            for cmd in cmds:
+                                if cmd['distro'] == 'Ubuntu':
+                                    name = cmd['name']
+                            # msg = "Your system's distro is not support this program."
+                        # CHECK THE PROCCES IS EXIST
+                        if not subprocess.call("type " + name[0], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE):  # if given process exist, this function will return 0.
+                            # for the non-existing program's installation flag
+                            if "install**" in msg:
+                                msg = msg.replace("install**", "")
+                                program_name = name[1].replace("apt-get install ", "")
+                                # proc = subprocess.Popen(name, stdout=FNULL, stderr=FNULL)
+                                proc = psutil.Process(subprocess.Popen(name, stdout=FNULL, stderr=FNULL).pid)
+                                while True:
+                                    if not subprocess.call("type " + program_name, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
+                                        time.sleep(0.5)  # For possible asynchronous delays.
+                                        self.say(msg + " has been installed.")
+                                        cmds = [{'distro': 'All', 'name': [program_name]}]  # For getting the procces name from iterated "self.execute" method.
+                                        return self.say(self.execute(cmds, "Opening " + msg))
+                                    if proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE:  # If the user wants cancel the installation, checking terminate.
+                                        pass
+                                    else:
+                                        self.say("Installation Cancelled!")
+                                        return msg
+                                    # time.sleep(0.5)
+                            subprocess.Popen(name, stdout=FNULL, stderr=FNULL)
+                            is_exist = True
+                        # PREPARE THE STATEMENTS FOR INSTALLING THE NON-EXISTING PROGRAMS
+                        if is_exist:
+                            pass
+                        else:
+                            name.append(msg)
+                            user_answering['options'] = name  # So, user_answering['options'][0] is a running command's and user_answering['options'][1] is this command's name.
+                            user_answering['status'] = True
+                            user_answering['for'] = 'execute'
+                            user_answering['reason'] = 'install'
+                            msg = "Seems like " + msg + " is not installed on your system. Do you want me to install it?"
+                        subprocess.Popen(["notify-send", "Dragonfire", msg])
                 except BaseException:
                     pass
-                if is_exist:
-                    pass
-                else:
-                    options = ""
-                    for cmd in cmds:
-                        options += cmd[0] + "\n"  # options are possible intallation programs.
-                    user_answering['options'] = options
-                    user_answering['status'] = True
-                    user_answering['for'] = 'execute'
-                    user_answering['reason'] = 'install'
-                    msg += " not found! Do you want to install?"
-                subprocess.Popen(["notify-send", "Dragonfire", msg])
             else:
                 was_there_open = False
                 for cmd in cmds:
                     for p in psutil.process_iter(attrs=['pid', 'name']):
                         try:
-                            if cmd[0] in p.info['name']:
-                                replaced = p.info['name'].replace(cmd[0], "")  # Control point for similar named processes
+                            if cmd['name'][0] in p.info['name']:
+                                replaced = p.info['name'].replace(cmd['name'][0], "")  # Control point for similar named processes
                                 if replaced == "":
                                     process = psutil.Process(p.info['pid'])
                                     for proc in process.children(recursive=True):
@@ -124,10 +155,10 @@ class TextToAction:
                         except psutil.NoSuchProcess:
                             pass
                 if was_there_open:
-                    msg += " closed"
+                    msg += " has been closed"
                 else:
                     msg += " is not open!"
-                subprocess.Popen(["notify-send", "Dragonfire", msg])  # triggered individually for each browser
+                subprocess.Popen(["notify-send", "Dragonfire", msg])
         return msg
 
     def say(self, msg, dynamic=False, end=False, cmd=None):

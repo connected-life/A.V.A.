@@ -252,26 +252,20 @@ class VirtualAssistant():
         # if USER_ANSWERING['for'] == 'assistant_rename':
         #     config_file.update({'name': com}, Query().datatype == 'name')
         if USER_ANSWERING['status'] and USER_ANSWERING['for'] == 'execute':
-            if com.startswith("whatever") or com.startswith("give up") or com.startswith("not now") or com.startswith("forget it") or com.startswith("WHATEVER") or com.startswith("GIVE UP") or com.startswith("NOT NOW") or com.startswith("FORGET IT"):  # for writing interrupt while taking notes and creating reminders.
+            if h.check_text("whatever") or (h.check_text("give") and h.check_text("up")) or (h.check_text("not") and h.check_text("now")) or (h.check_text("forget") and h.check_text("it")):  # for writing interrupt while taking notes and creating reminders.
                 USER_ANSWERING['status'] = False
                 return userin.say(
                     choice(["As you wish", "I understand", "Alright", "Ready whenever you want", "Get it"]) + choice([".", ", " + user_prefix + "."]))
             if USER_ANSWERING['reason'] == 'install':
-                if com.startswith("yes") and com.endswith("yes") or com.startswith("yep") and com.endswith("yep") or com.startswith("okay") and com.endswith("okay") or h.check_deps_contains("do it"):
-                    USER_ANSWERING['reason'] = 'install verified'
-                    return userin.say("Choose one of following:\n" + USER_ANSWERING['options'])
+                USER_ANSWERING['status'] = False
+                if h.check_text("yes") or (h.check_text("do") and h.check_text("it")) or h.check_text("yep") or h.check_text("okay"):
+                    cmds = [{'distro': 'All', 'name': ["gksudo", "apt-get install " + USER_ANSWERING['options'][0]]}]
+                    userin.say("Installing " + USER_ANSWERING['options'][1] + "...")
+                    return userin.execute(cmds, "install**" + USER_ANSWERING['options'][1])
                 else:
-                    USER_ANSWERING['status'] = False
-                    return userin.say("I won't install!")
-            if USER_ANSWERING['reason'] == 'install verified':
-                if com in USER_ANSWERING['options']:
-                    USER_ANSWERING['status'] = False
-                    cmds = [["konsole", "--command=sudo apt install " + com], ["gnome-terminal", "--command=sudo apt install " + com]]
-                    return userin.say(userin.execute(cmds, "Installing will start, Please enter your root password.", True, 3))
-                else:
-                    userin.say("Please repeat!")
+                    return userin.say("Okay, I won't install!")
 
-        response = take_note_command.takenote_second_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)   #take note command.
+        response = take_note_command.takenote_second_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)   # take note command.
         if response:
             return response
 
@@ -294,7 +288,8 @@ class VirtualAssistant():
             ]))
         if (h.check_verb_lemma("go") and h.check_noun_lemma("sleep")) or (h.check_verb_lemma("stop") and h.check_verb_lemma("listen")):
             self.inactive = True
-            userin.execute(["echo"], ava_name + " deactivated. To reactivate say '" + ava_name + "' or 'Wake Up!'")
+            cmds = [{'distro': 'All', 'name': ["echo"]}]
+            userin.execute(cmds, ava_name + " deactivated. To reactivate say '" + ava_name + "' or 'Wake Up!'")
             return userin.say("I'm going to sleep")
         if h.directly_equal(["enough"]) or (h.check_verb_lemma("shut") and h.check_nth_lemma(-1, "up")):
             tts_kill()
@@ -302,11 +297,13 @@ class VirtualAssistant():
             print(msg)
             return msg
         if h.check_wh_lemma("what") and h.check_deps_contains("your name"):
-            return userin.execute([" "], "My name is " + ava_name + ".", True)
+            cmds = [{'distro': 'All', 'name': [" "]}]
+            return userin.execute(cmds, "My name is " + ava_name + ".", True)
         if h.check_wh_lemma("what") and h.check_deps_contains("your gender"):
             return userin.say("I have a female voice but I don't have a gender identity. I'm a computer program, " + user_prefix + ".")
         if (h.check_wh_lemma("who") and h.check_text("I")) or (h.check_verb_lemma("say") and h.check_text("my") and h.check_lemma("name")):
-            userin.execute([" "], user_full_name)
+            cmds = [{'distro': 'All', 'name': [" "]}]
+            userin.execute(cmds, user_full_name)
             return userin.say("Your name is " + user_full_name + ", " + user_prefix + ".")
 
         if (h.check_wh_lemma("what") and h.check_verb_lemma("be") and h.check_text("time")) or h.check_only_dep_is("time") or ((h.check_verb_lemma("give") or h.check_verb_lemma("tell")) and h.check_text("time")) or (
@@ -328,9 +325,10 @@ class VirtualAssistant():
         response = take_note_command.takenote_first_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)  # take note command
         if response:
             return response
-        if (h.check_verb_lemma("change") or h.check_verb_lemma("register")) and h.check_adj_lemma("your") and h.check_noun_lemma("name"):
+        if ((h.check_verb_lemma("change") or h.check_verb_lemma("register")) and (h.check_noun_lemma("your") and h.check_noun_lemma("name"))) or (h.check_noun_lemma("your") and h.check_noun_lemma("name") and h.check_verb_lemma("be") and h.check_noun_lemma("now")):
             response = com.replace("change your name", "")
             response = response.replace("register your name", "")
+            response = response.replace("your name is now", "")
             if not response == "":
                 config_file.update({'name': response}, Query().datatype == 'name')
                 return userin.say("From now on my name is " + response + ".")
@@ -346,17 +344,18 @@ class VirtualAssistant():
                     city += ' ' + ent.text
             city = city.strip()
             if city:
+                cmds = [{'distro': 'All', 'name': [" "]}]
                 owm = pyowm.OWM("16d66c84e82424f0f8e62c3e3b27b574")
                 reg = owm.city_id_registry()
                 try:
                     weather = owm.weather_at_id(reg.ids_for(city)[0][0]).get_weather()
                     fmt = "The temperature in {} is {} degrees celsius"
                     msg = fmt.format(city, weather.get_temperature('celsius')['temp'])
-                    userin.execute([" "], msg)
+                    userin.execute(cmds, msg)
                     return userin.say(msg)
                 except IndexError:
                     msg = "Sorry, " + user_prefix + " but I couldn't find a city named " + city + " on the internet."
-                    userin.execute([" "], msg)
+                    userin.execute(cmds, msg)
                     return userin.say(msg)
 
         response = keyboard_commands.compare(com, doc, h, args, self.testing)
@@ -364,7 +363,8 @@ class VirtualAssistant():
             return response
 
         if ((h.check_text("shut") and h.check_text("down")) or (h.check_text("power") and h.check_text("off"))) and h.check_text("computer") and not args["server"]:
-            return userin.execute(["sudo", "poweroff"], "Shutting down", True, 3)
+            cmds = [{'distro': 'All', 'name': ["gksudo", "poweroff"]}]
+            return userin.execute(cmds, "Shutting down", True, 3)
         if h.check_nth_lemma(0, "goodbye") or h.check_nth_lemma(0, "bye") or (h.check_verb_lemma("see") and h.check_text("you") and h.check_adv_lemma("later")):
             response = userin.say("Goodbye, " + user_prefix)
             if not args["server"] and not self.testing:
@@ -466,7 +466,8 @@ def greet(userin):
         time_of_day = "evening"
     else:
         time_of_day = "night"
-    userin.execute(["echo"], "To activate say 'Dragonfire!' or 'Wake Up!'")
+    cmds = [{'distro': 'All', 'name': ["echo"]}]
+    userin.execute(cmds, "To activate say 'Dragonfire!' or 'Wake Up!'")
     return userin.say(" ".join(["Good", time_of_day, user_prefix]))
 
 
@@ -476,8 +477,8 @@ def speech_error():
     Returns:
         str:  Response.
     """
-
-    userin.execute(["echo"], "An error occurred")
+    cmds = [{'distro': 'All', 'name': ["echo"]}]
+    userin.execute(cmds, "An error occurred")
     return userin.say("I couldn't understand, please repeat again.")
 
 

@@ -56,7 +56,8 @@ class FindInYoutubeCommand():
                         if len(info['entries']) > 0:
                             youtube_title = info['entries'][0]['title']
                             youtube_url = "https://www.youtube.com/watch?v=%s" % (info['entries'][0]['id'])
-                            userin.execute(["sensible-browser", youtube_url], youtube_title)
+                            cmds = [{'distro': 'All', 'name': ["sensible-browser", youtube_url]}]
+                            userin.execute(cmds, youtube_title)
                             youtube_title = "".join([i if ord(i) < 128 else ' ' for i in youtube_title])
                             response = userin.say(youtube_title, ["sensible-browser", youtube_url])
                         else:

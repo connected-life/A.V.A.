@@ -42,7 +42,8 @@ class FindInBrowserCommand():
                     search_query = search_query.strip()
                     if search_query:
                         tab_url = "http://google.com/?#q=" + search_query
-                        return userin.execute(["sensible-browser", tab_url], search_query, True)
+                        cmds = [{'distro': 'All', 'name': ["sensible-browser", tab_url]}]
+                        return userin.execute(cmds, search_query, True)
         return None
 
     def compare_image(self, doc, h, userin):
@@ -67,5 +68,6 @@ class FindInBrowserCommand():
                     search_query = search_query.strip()
                     if search_query:
                         tab_url = "http://google.com/?#q=" + search_query + "&tbm=isch"
-                        return userin.execute(["sensible-browser", tab_url], search_query, True)
+                        cmds = [{'distro': 'All', 'name': ["sensible-browser", tab_url]}]
+                        return userin.execute(cmds, search_query, True)
         return None

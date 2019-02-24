@@ -51,10 +51,12 @@ class FindInWikiCommand():
                         wikipage = wikipedia.page(wikiresult[0])
                         wikicontent = "".join([i if ord(i) < 128 else ' ' for i in wikipage.content])
                         wikicontent = re.sub(r'\([^)]*\)', '', wikicontent)
-                        userin.execute(["sensible-browser", wikipage.url], search_query)
+                        cmds = [{'distro': 'All', 'name': ["sensible-browser", wikipage.url]}]
+                        userin.execute(cmds, search_query)
                         return userin.say(wikicontent, cmd=["sensible-browser", wikipage.url])
                     except requests.exceptions.ConnectionError:
-                        userin.execute([" "], "Wikipedia connection error.")
+                        cmds = [{'distro': 'All', 'name': [" "]}]
+                        userin.execute(cmds, "Wikipedia connection error.")
                         return userin.say("Sorry, " + user_prefix + ". But I'm unable to connect to Wikipedia servers.")
                     except wikipedia.exceptions.DisambiguationError as disambiguation:
                         user_answering['status'] = True
@@ -67,7 +69,8 @@ class FindInWikiCommand():
                             msg += ", or " + option
                             notify += "\n - " + option
                         notify += '\nSay, for example: "THE FIRST ONE" to choose.'
-                        userin.execute([" "], notify)
+                        cmds = [{'distro': 'All', 'name': [" "]}]
+                        userin.execute(cmds, notify)
                         return userin.say(msg)
                     except BaseException:
                         pass
@@ -106,10 +109,12 @@ class FindInWikiCommand():
                         wikipage = wikipedia.page(wikiresult[0])
                         wikicontent = "".join([i if ord(i) < 128 else ' ' for i in wikipage.content])
                         wikicontent = re.sub(r'\([^)]*\)', '', wikicontent)
-                        userin.execute(["sensible-browser", wikipage.url], search_query)
+                        cmds = [{'distro': 'All', 'name': ["sensible-browser", wikipage.url]}]
+                        userin.execute(cmds, search_query)
                         return userin.say(wikicontent, cmd=["sensible-browser", wikipage.url])
                     except requests.exceptions.ConnectionError:
-                        userin.execute([" "], "Wikipedia connection error.")
+                        cmds = [{'distro': 'All', 'name': [" "]}]
+                        userin.execute(cmds, "Wikipedia connection error.")
                         return userin.say(
                             "Sorry, " + user_prefix + ". But I'm unable to connect to Wikipedia servers.")
                     except Exception:

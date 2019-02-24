@@ -141,7 +141,7 @@ class TakeNoteCommand():
         """
 
         if user_answering_note['status']:
-            if com.startswith("whatever") or com.startswith("give up") or com.startswith("not now") or com.startswith("forget it") or com.startswith("WHATEVER") or com.startswith("GIVE UP") or com.startswith("NOT NOW") or com.startswith("FORGET IT"):  # for writing interrupt while taking notes and creating reminders.
+            if h.check_text("whatever") or (h.check_text("give") and h.check_text("up")) or (h.check_text("not") and h.check_text("now")) or (h.check_text("forget") and h.check_text("it")):  # for writing interrupt while taking notes and creating reminders.
                 user_answering_note['status'] = False
                 user_answering_note['is_todo'] = False
                 user_answering_note['todo_listname'] = None
@@ -190,7 +190,7 @@ class TakeNoteCommand():
             if user_answering_note['is_remind']:
                 if user_answering_note['is_again']:  # for using same reminder on different time.
                     user_answering_note['is_again'] = False
-                    if com.startswith("yes") and com.endswith("yes") or com.startswith("yep") and com.endswith("yep") or com.startswith("okay") and com.endswith("okay") or h.check_deps_contains("do it"):
+                    if (com.startswith("yes") and com.endswith("yes")) or (com.startswith("yep") and com.endswith("yep")) or (com.startswith("okay") and com.endswith("okay")) or (com.startswith("do it") and com.endswith("do it")):
                         return userin.say(choice(["It's okay", "Get it", "reminder will repeat", " It has been set again"]) + choice(
                             [", " + user_prefix + ". ", ". "]) + choice(
                             ["What is the remind time?", "When do you want to remind?", "Give remind time.",
@@ -338,7 +338,7 @@ class TakeNoteCommand():
         """
 
         if not user_answering_note['has_listname']:
-            if com.startswith("whatever") or com.startswith("give up") or com.startswith("not now") or com.startswith("forget it") or com.startswith("WHATEVER") or com.startswith("GIVE UP") or com.startswith("NOT NOW") or com.startswith("FORGET IT"):  # for writing interrupr while taking notes and creating reminders.
+            if h.check_text("whatever") or (h.check_text("give") and h.check_text("up")) or (h.check_text("not") and h.check_text("now")) or (h.check_text("forget") and h.check_text("it")):  # for writing interrupr while taking notes and creating reminders.
                 user_answering_note['has_listname'] = True
                 return userin.say(
                     choice(["As you wish", "I understand", "Alright", "Ready whenever you want", "Get it"]) + choice(

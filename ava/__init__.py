@@ -247,7 +247,7 @@ class VirtualAssistant():
         if args["verbose"]:
             userin.pretty_print_nlp_parsing_results(doc)
 
-        if self.inactive and not (h.directly_equal(["ava", "hey"]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up"))):
+        if self.inactive and not (h.directly_equal(["ava", "hey", ava_name]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up"))):
             return ""
         # if USER_ANSWERING['for'] == 'assistant_rename':
         #     config_file.update({'name': com}, Query().datatype == 'name')
@@ -277,7 +277,7 @@ class VirtualAssistant():
         if response:
             return response
 
-        if h.directly_equal(["ava", "hey"]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up")):
+        if h.directly_equal(["ava", "hey", ava_name]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up")):
             self.inactive = False
             return userin.say(choice([
                 "Yes, " + user_prefix + ".",
@@ -286,12 +286,12 @@ class VirtualAssistant():
                 "Ready for the orders!",
                 user_prefix.capitalize() + ", tell me your wish."
             ]))
-        if (h.check_verb_lemma("go") and h.check_noun_lemma("sleep")) or (h.check_verb_lemma("stop") and h.check_verb_lemma("listen")):
+        if (h.check_verb_lemma("go") and h.check_noun_lemma("sleep")) or (h.check_verb_lemma("stop") and h.check_verb_lemma("listen")) or h.directly_equal(["quiet"]):
             self.inactive = True
             cmds = [{'distro': 'All', 'name': ["echo"]}]
             userin.execute(cmds, ava_name + " deactivated. To reactivate say '" + ava_name + "' or 'Wake Up!'")
             return userin.say("I'm going to sleep")
-        if h.directly_equal(["enough"]) or (h.check_verb_lemma("shut") and h.check_nth_lemma(-1, "up")):
+        if h.directly_equal(["enough", "mute"]) or (h.check_verb_lemma("shut") and h.check_nth_lemma(-1, "up")):
             tts_kill()
             msg = ava_name + " quiets."
             print(msg)
@@ -325,12 +325,13 @@ class VirtualAssistant():
         response = take_note_command.takenote_first_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)  # take note command
         if response:
             return response
-        if ((h.check_verb_lemma("change") or h.check_verb_lemma("register")) and (h.check_noun_lemma("your") and h.check_noun_lemma("name"))) or (h.check_noun_lemma("your") and h.check_noun_lemma("name") and h.check_verb_lemma("be") and h.check_noun_lemma("now")):
-            response = com.replace("change your name", "")
-            response = response.replace("register your name", "")
-            response = response.replace("your name is now", "")
+        if ((h.check_verb_lemma("change") or h.check_verb_lemma("register")) and (h.check_text("your") and h.check_noun_lemma("name"))) or (h.check_text("your") and h.check_noun_lemma("name") and h.check_verb_lemma("be") and h.check_text("now")):
+            response = com.replace("change your name ", "")
+            response = response.replace("register your name ", "")
+            response = response.replace("your name is now ", "")
             if not response == "":
                 config_file.update({'name': response}, Query().datatype == 'name')
+                self.ava_name = response
                 return userin.say("From now on my name is " + response + ".")
 
         response = set_user_title_commands.compare(doc, h, args, userin, config_file)

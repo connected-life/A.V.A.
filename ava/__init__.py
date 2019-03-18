@@ -48,6 +48,9 @@ from ava.commands.find_in_browser import FindInBrowserCommand
 from ava.commands.keyboard import KeyboardCommands
 from ava.commands.set_user_title import SetUserTitleCommands
 
+from ava.augmented.mqtt import MqttReceimitter
+import ava.augmented.t_system as t_system
+
 import spacy  # Industrial-strength Natural Language Processing in Python
 import pyowm  # A Python wrapper around the OpenWeatherMap API
 from tinydb import Query, TinyDB  # TinyDB is a lightweight document oriented database optimized for your happiness
@@ -79,14 +82,14 @@ cli_execute_commands = CliExecuteCommands()
 keyboard_commands = KeyboardCommands()
 set_user_title_commands = SetUserTitleCommands()
 
-USER_ANSWERING = {      # user answering for wikipedia search
+user_answering = {      # user answering for wikipedia search
     'status': False,
-    'for': None,
-    'reason': None,
-    'options': None
+    'for': '',
+    'reason': '',
+    'options': ''
 }
 
-USER_ANSWERING_NOTE = {     # user answering for taking notes.
+user_answering_note = {     # user answering for taking notes.
     'status': False,
     'is_remind': False,
     'is_todo': False,          # using taking and getting notes both.
@@ -202,7 +205,10 @@ class VirtualAssistant():
             home = expanduser("~")
             self.config_file = TinyDB(home + '/.dragonfire_config.json')
 
-        thread.start_new_thread(reminder.remind, (note_taker, userin, user_prefix, USER_ANSWERING_NOTE))
+        if self.args["augmented"]:
+            self.mqtt_receimitter = MqttReceimitter('10.42.0.151', self.userin)
+
+        thread.start_new_thread(reminder.remind, (note_taker, userin, user_prefix, user_answering_note))
 
     def command(self, com):
         """Function that serves as the entry point for each one of the user commands.
@@ -249,31 +255,37 @@ class VirtualAssistant():
 
         if self.inactive and not (h.directly_equal(["ava", "hey", ava_name]) or (h.check_verb_lemma("wake") and h.check_nth_lemma(-1, "up"))):
             return ""
-        # if USER_ANSWERING['for'] == 'assistant_rename':
+        # if user_answering['for'] == 'assistant_rename':
         #     config_file.update({'name': com}, Query().datatype == 'name')
-        if USER_ANSWERING['status'] and USER_ANSWERING['for'] == 'execute':
+        if user_answering['status'] and user_answering['for'] == 'execute':
+            user_answering['status'] = False
             if h.check_text("whatever") or (h.check_text("give") and h.check_text("up")) or (h.check_text("not") and h.check_text("now")) or (h.check_text("forget") and h.check_text("it")):  # for writing interrupt while taking notes and creating reminders.
-                USER_ANSWERING['status'] = False
                 return userin.say(
                     choice(["As you wish", "I understand", "Alright", "Ready whenever you want", "Get it"]) + choice([".", ", " + user_prefix + "."]))
-            if USER_ANSWERING['reason'] == 'install':
-                USER_ANSWERING['status'] = False
+            if user_answering['reason'] == 'install':
                 if h.check_text("yes") or (h.check_text("do") and h.check_text("it")) or h.check_text("yep") or h.check_text("okay"):
-                    cmds = [{'distro': 'All', 'name': ["gksudo", "apt-get install " + USER_ANSWERING['options'][0]]}]
-                    userin.say("Installing " + USER_ANSWERING['options'][1] + "...")
-                    return userin.execute(cmds, "install**" + USER_ANSWERING['options'][1])
+                    cmds = [{'distro': 'All', 'name': [user_answering['options'][0]]}]
+                    # cmds = [{'distro': 'All', 'name': ["gksudo", "apt-get install " + user_answering['options'][0]]}]
+
+                    userin.say("Installing " + user_answering['options'][1] + "...")
+                    return userin.execute(cmds, user_answering['options'][1], False, 0, False, {}, True)
                 else:
                     return userin.say("Okay, I won't install!")
 
-        response = take_note_command.takenote_second_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)   # take note command.
+        if args["augmented"]:
+            response = t_system.check(doc, h, self.mqtt_receimitter, user_answering, userin, user_prefix)
+            if response:
+                return response
+
+        response = take_note_command.takenote_second_compare(com, doc, h, note_taker, user_answering_note, userin, user_prefix)   # take note command.
         if response:
             return response
 
-        response = take_note_command.getnote_second_compare(com, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)
+        response = take_note_command.getnote_second_compare(com, h, note_taker, user_answering_note, userin, user_prefix)
         if response:
             return response
 
-        response = find_in_wiki_command.second_compare(com, USER_ANSWERING, userin, user_prefix)
+        response = find_in_wiki_command.second_compare(com, user_answering, userin, user_prefix)
         if response:
             return response
 
@@ -314,15 +326,15 @@ class VirtualAssistant():
         if response:
             return response
 
-        response = take_note_command.getnote_first_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)
+        response = take_note_command.getnote_first_compare(com, doc, h, note_taker, user_answering_note, userin, user_prefix)
         if response:
             return response
 
-        response = cli_execute_commands.compare(h, userin, USER_ANSWERING)
+        response = cli_execute_commands.compare(h, userin, user_answering)
         if response:
             return response
 
-        response = take_note_command.takenote_first_compare(com, doc, h, note_taker, USER_ANSWERING_NOTE, userin, user_prefix)  # take note command
+        response = take_note_command.takenote_first_compare(com, doc, h, note_taker, user_answering_note, userin, user_prefix)  # take note command
         if response:
             return response
         if ((h.check_verb_lemma("change") or h.check_verb_lemma("register")) and (h.check_text("your") and h.check_noun_lemma("name"))) or (h.check_text("your") and h.check_noun_lemma("name") and h.check_verb_lemma("be") and h.check_text("now")):
@@ -373,7 +385,7 @@ class VirtualAssistant():
                 thread.interrupt_main()
             return response
 
-        response = find_in_wiki_command.first_compare(doc, h, USER_ANSWERING, userin, user_prefix)
+        response = find_in_wiki_command.first_compare(doc, h, user_answering, userin, user_prefix)
         if response:
             return response
 
@@ -498,6 +510,7 @@ def initiate():
     ap.add_argument("-j", "--headless", help="Headless mode. Do not display an avatar animation on the screen. Disable the female head model.", action="store_true")
     ap.add_argument("-v", "--verbose", help="Increase verbosity of log output.", action="store_true")
     ap.add_argument("-g", "--gspeech", help="Instead of using the default speech recognition method(Mozilla DeepSpeech), use Google Speech Recognition service. (more accurate results)", action="store_true")
+    ap.add_argument("-a", "--augmented", help="Augmented mode. Control the physical independent devices about connected world via IoT approach. Used communication protocol is mqtt.", action="store_true")
     ap.add_argument("--server", help="Server mode. Disable any audio functionality, serve a RESTful spaCy API and become a Twitter integrated chatbot.", metavar="REG_KEY")
     ap.add_argument("-p", "--port", help="Port number for server mode.", default="3301", metavar="PORT")
     ap.add_argument("--version", help="Display the version number of Dragonfire.", action="store_true")

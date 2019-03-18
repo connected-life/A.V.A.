@@ -1,4 +1,4 @@
-# m-cyba
+# A.V.A.
 
 <img src="https://travis-ci.org/DragonComputer/Dragonfire.svg?branch=master" align="right" />
 
@@ -10,7 +10,7 @@
 
 the augmented virtual assistant for Ubuntu based Linux distributions
 
-![Dragonfire](https://raw.githubusercontent.com/DragonComputer/Dragonfire/master/docs/img/demo.gif)
+![Dragonfire](https://raw.githubusercontent.com/MCYBA/A.V.A./master/docs/img/demo.gif)
 
 <p align="center"><sup><i>Special thanks to Jassu Ilama for the beautiful 3D modelling and material design of this avatar.</i></sup></p>
 
@@ -62,7 +62,7 @@ or simply: `sudo ./install.sh`
 ### Usage <a href="https://dragonfire.readthedocs.io/en/latest/dragonfire.html#module-dragonfire.api"><img src="https://media.readthedocs.com/corporate/img/header-logo.png" align="right" height="25px" /></a>
 
 ```
-usage: dragonfire [-h] [-c] [-s] [-j] [-v] [-g] [--server API_KEY] [-p PORT]
+usage: dragonfire [-h] [-c] [-s] [-j] [-v] [-g] [-a] [--server API_KEY] [-p PORT]
                   [--version]
 
 optional arguments:
@@ -78,6 +78,9 @@ optional arguments:
   -g, --gspeech         Instead of using the default speech recognition
                         method(Mozilla DeepSpeech), use Google Speech
                         Recognition service. (more accurate results)
+  -a, --augmented       Augmented mode. Control the physical independent 
+                        devices about connected world via IoT approach. 
+                        Used communication protocol is mqtt.
   --server API_KEY      Server mode. Disable any audio functionality, serve a
                         RESTful spaCy API and become a Twitter integrated
                         chatbot.

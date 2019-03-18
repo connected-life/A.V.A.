@@ -11,7 +11,7 @@ CHUNK = 8000  # Smallest unit of audio. 1024 bytes
 FORMAT = pyaudio.paInt16  # Data format
 CHANNELS = 1  # Number of channels
 RATE = 16000  # Bit Rate of audio stream / Frame Rate
-THRESHOLD = 1000  # Threshhold value for detecting stimulant
+THRESHOLD = 100  # Threshold value for detecting stimulant
 SILENCE_DETECTION = 3  # Wait number of frames to decide whether it fell silent or not
 LISTENING = False
 

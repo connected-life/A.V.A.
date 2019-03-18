@@ -30,6 +30,8 @@ class FindInWikiCommand():
             h:                         doc helper from __init__.py
             user_answering:       User answering string array.
             userin:                    :class:`ava.utilities.TextToAction` instance.
+
+        Keyword Args:
             user_prefix:               user's preferred titles.
         """
 

@@ -33,6 +33,8 @@ import uuid  # UUID objects according to RFC 4122
 import shutil  # High-level file operations
 
 import psutil
+import apt
+from elevate import elevate
 
 DRAGONFIRE_PATH = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 FNULL = open(os.devnull, 'w')
@@ -64,7 +66,7 @@ class TextToAction:
         if not self.headless:
             realhud.load_gif(DRAGONFIRE_PATH + "/realhud/animation/avatar.gif")
 
-    def execute(self, cmds, msg="", speak=False, duration=0, is_kill=False, user_answering={}):
+    def execute(self, cmds, msg="", speak=False, duration=0, is_kill=False, user_answering={}, is_install=False):
         """Method to execute the given bash command and display a desktop environment independent notification.
 
         Keyword Args:
@@ -78,14 +80,13 @@ class TextToAction:
             Because this method is executing bash commands directly, it should be called and modified **carefully**. Otherwise it can cause a **SECURITY BREACH** on the machine.
 
         """
-
         self.speak = speak
 
         if self.server or not self.testing:
             if self.speak:
                 self.say(msg)
             if not is_kill:
-                is_exist = False
+                is_program_exist = False
                 distro = subprocess.getoutput("cat /etc/os-release | grep -oP '[a-zA-Z]+ [a-zA-Z]+'")  # for detection user's distrobution of system.
                 name = []
                 try:
@@ -104,38 +105,69 @@ class TextToAction:
                                     name = cmd['name']
                             # msg = "Your system's distro is not support this program."
                         # CHECK THE PROCCES IS EXIST
-                        if not subprocess.call("type " + name[0], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE):  # if given process exist, this function will return 0.
-                            # for the non-existing program's installation flag
-                            if "install**" in msg:
-                                msg = msg.replace("install**", "")
-                                program_name = name[1].replace("apt-get install ", "")
-                                # proc = subprocess.Popen(name, stdout=FNULL, stderr=FNULL)
-                                proc = psutil.Process(subprocess.Popen(name, stdout=FNULL, stderr=FNULL).pid)
-                                while True:
-                                    if not subprocess.call("type " + program_name, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
-                                        time.sleep(0.5)  # For possible asynchronous delays.
-                                        self.say(msg + " has been installed.")
-                                        cmds = [{'distro': 'All', 'name': [program_name]}]  # For getting the procces name from iterated "self.execute" method.
-                                        return self.say(self.execute(cmds, "Opening " + msg))
-                                    if proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE:  # If the user wants cancel the installation, checking terminate.
-                                        pass
-                                    else:
-                                        self.say("Installation Cancelled!")
-                                        return msg
-                                    # time.sleep(0.5)
+
+                        if not subprocess.call("type " + name[0], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
                             subprocess.Popen(name, stdout=FNULL, stderr=FNULL)
-                            is_exist = True
-                        # PREPARE THE STATEMENTS FOR INSTALLING THE NON-EXISTING PROGRAMS
-                        if is_exist:
-                            pass
                         else:
+                            if is_install:
+                                with elevate():
+                                    import apt
+                                    # from elevate import elevate
+                                    pkg_name = name[0]
+
+                                    cache = apt.cache.Cache()
+                                    cache.update()
+                                    cache.open()
+
+                                    pkg = cache[pkg_name]
+                                    pkg.mark_install()
+                                    try:
+                                        cache.commit()
+                                        self.say(msg + " has been installed.")
+                                        cmds = [{'distro': 'All', 'name': [pkg_name]}]  # For getting the procces name from iterated "self.execute" method.
+                                        return self.say(self.execute(cmds, "Opening " + msg))
+                                    except Exception as arg:
+                                        self.say("Sorry, package installation failed!")
+                                        return ""
+
                             name.append(msg)
                             user_answering['options'] = name  # So, user_answering['options'][0] is a running command's and user_answering['options'][1] is this command's name.
                             user_answering['status'] = True
                             user_answering['for'] = 'execute'
                             user_answering['reason'] = 'install'
-                            msg = "Seems like " + msg + " is not installed on your system. Do you want me to install it?"
+                            msg = "Seems like " + msg + " is not installed on your system. Do you want me to install it? " + sys.version
                         subprocess.Popen(["notify-send", "Dragonfire", msg])
+
+                        # if not subprocess.call("type " + name[0], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE):  # if given process exist, this function will return 0.
+                        #     # for the non-existing program's installation flag
+                        #     if is_install:
+                        #         program_name = name[1].replace("apt-get install ", "")
+                        #         proc = psutil.Process(subprocess.Popen(name, stdout=FNULL, stderr=FNULL).pid)
+                        #         while True:
+                        #             if not subprocess.call("type " + program_name, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE):
+                        #                 time.sleep(0.5)  # For possible asynchronous delays.
+                        #                 self.say(msg + " has been installed.")
+                        #                 cmds = [{'distro': 'All', 'name': [program_name]}]  # For getting the procces name from iterated "self.execute" method.
+                        #                 return self.say(self.execute(cmds, "Opening " + msg))
+                        #             if proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE:  # If the user wants cancel the installation, checking terminate.
+                        #                 pass
+                        #             else:
+                        #                 self.say("Installation Cancelled!")
+                        #                 return msg
+                        #             # time.sleep(0.5)
+                        #     subprocess.Popen(name, stdout=FNULL, stderr=FNULL)
+                        #     is_program_exist = True
+                        # # PREPARE THE STATEMENTS FOR INSTALLING THE NON-EXISTING PROGRAMS
+                        # if is_program_exist:
+                        #     pass
+                        # else:
+                        #     name.append(msg)
+                        #     user_answering['options'] = name  # So, user_answering['options'][0] is a running command's and user_answering['options'][1] is this command's name.
+                        #     user_answering['status'] = True
+                        #     user_answering['for'] = 'execute'
+                        #     user_answering['reason'] = 'install'
+                        #     msg = "Seems like " + msg + " is not installed on your system. Do you want me to install it?"
+                        # subprocess.Popen(["notify-send", "Dragonfire", msg])
                 except BaseException:
                     pass
             else:

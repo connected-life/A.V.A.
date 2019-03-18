@@ -145,7 +145,8 @@ setup(
         'SQLAlchemy==1.2.10',
         'PyMySQL==0.8.1',
         'msgpack==0.5.6',
-        'psutil>=5.4.2'
+        'psutil>=5.4.2',
+        'elevate>=0.1.3'
     ],
 
     # List additional groups of dependencies here (e.g. development

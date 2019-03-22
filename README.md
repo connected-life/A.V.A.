@@ -10,7 +10,8 @@
 
 the augmented virtual assistant for Ubuntu based Linux distributions
 
-![Dragonfire](https://raw.githubusercontent.com/MCYBA/A.V.A./master/docs/img/demo.gif)
+![A.V.A.](https://raw.githubusercontent.com/MCYBA/A.V.A./master/docs/img/demo.gif)
+
 
 <p align="center"><sup><i>Special thanks to Jassu Ilama for the beautiful 3D modelling and material design of this avatar.</i></sup></p>
 
@@ -47,22 +48,35 @@ Feel free to join [our Gitter chat room](https://gitter.im/DragonComputer/Lobby)
 
 ### Installation
 
-Download the [latest release](https://github.com/DragonComputer/Dragonfire/releases/latest) (the `.deb` file) and:
+To run A.V.A. on a desktop Debian or Ubuntu system, either download the [latest release](https://github.com/MCYBA/A.V.A./releases/latest) (the `.deb` file) and install as follows:
 
 ```Shell
-sudo dpkg -i dragonfire_1.0.1_amd64.deb
+sudo dpkg -i dragonfire_1.0.2_amd64.deb
 ```
 
-or with Docker: `docker pull dragoncomputer/dragonfire`
 
-or simply: `sudo ./install.sh`
+or clone the GitHub repository and run
 
-<sup><i>To install the dependencies run `sudo apt-get -f install` right after the `dpkg -i` command. The installation will automatically download the pre-trained English model of Mozilla DeepSpeech (1.31 GB download size) and will place it under `/usr/share/dragonfire/deepspeech/models` directory. You can manually [download the model](https://github.com/mozilla/DeepSpeech/releases/download/v0.4.1/deepspeech-0.4.1-models.tar.gz) if you want.</i></sup>
+```Shell
+sudo ./install.sh
+```
+
+in the repository directory.
+
+<sup><i>To install the dependencies, run `sudo apt-get -f install` right after the `dpkg -i` command. The installation will automatically download the pre-trained English model of Mozilla DeepSpeech (1.31 GB download size) and will place it under `/usr/share/dragonfire/deepspeech/models` directory. You can manually [download the model](https://github.com/mozilla/DeepSpeech/releases/download/v0.4.1/deepspeech-0.4.1-models.tar.gz) if you wish.</i></sup>
+
+If you want to run Dragonfire on a server, you should install the Docker image (which does not install the huge
+DeepSpeech model required for speech recognition):
+
+```Shell
+docker pull dragoncomputer/dragonfire
+```
 
 ### Usage <a href="https://dragonfire.readthedocs.io/en/latest/dragonfire.html#module-dragonfire.api"><img src="https://media.readthedocs.com/corporate/img/header-logo.png" align="right" height="25px" /></a>
 
 ```
 usage: dragonfire [-h] [-c] [-s] [-j] [-v] [-g] [-a] [--server API_KEY] [-p PORT]
+
                   [--version]
 
 optional arguments:
@@ -126,7 +140,7 @@ OPEN (BROWSER | CHROME | FIREFOX)
 PHOTOSHOP | PHOTO EDITOR
 INKSCAPE | VECTOR GRAPHICS
 VIDEO EDITOR
-OPEN [CAMERA, CALENDAR, CALCULATOR, STEAM, BLENDER, WRITER, MATH, IMPRESS, DRAW]
+OPEN [CAMERA, CALENDAR, CALCULATOR, STEAM, BLENDER, WRITER, MATH, IMPRESS, DRAW, TERMINAL]
 SOFTWARE CENTER
 OFFICE SUITE
 KEYBOARD *
@@ -140,6 +154,7 @@ GOODBYE | BYE BYE | SEE YOU LATER
 (SEARCH|FIND) * (IN|ON|AT|USING) (GOOGLE|WEB)
 (SEARCH IMAGES OF|FIND IMAGES OF|SEARCH|FIND) * (IN|ON|AT|USING) (GOOGLE|WEB|GOOGLE IMAGES|WEB IMAGES)
 WHAT'S THE TEMPERATURE IN *
+WHAT TIME IS IT
 ```
 
 <br>

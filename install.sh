@@ -28,11 +28,13 @@ CHECKSUM="21198f6b6f24ef1f45082aebc6fd452e"
 CHECKSUM2="c775d819ffc06118053a48808003df84"
 
 DRAGONFIRE_DIR=/usr/share/ava
+
 if [ ! -d "$DRAGONFIRE_DIR" ]; then
   mkdir $DRAGONFIRE_DIR
 fi
 
 DEEPSPEECH_DIR=/usr/share/ava/deepspeech
+
 if [ "$NO_MODEL" = false ] ; then
     if [ ! -d "$DEEPSPEECH_DIR" ]; then
       mkdir $DEEPSPEECH_DIR
@@ -45,6 +47,7 @@ if [ "$NO_MODEL" = false ] ; then
 fi
 
 DEEPCONV_DIR=/usr/share/ava/deepconv
+
 if [ ! -d "$DEEPCONV_DIR" ]; then
   mkdir $DEEPCONV_DIR
 fi

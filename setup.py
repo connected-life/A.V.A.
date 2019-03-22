@@ -60,12 +60,12 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='ava',
-
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.1',
+    version='1.0.2',
     description='A.V.A. is an open source augmented virtual assistant project for Ubuntu based Linux distributions',
+
     long_description=long_description,
     long_description_content_type='text/markdown',
 
@@ -108,6 +108,7 @@ setup(
     # What does your project relate to?
     keywords='augmented virtual assistant machine learining artifical intelligence chat bot',
 
+
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(),
@@ -135,7 +136,7 @@ setup(
         'imutils',
         'pyqtgraph',
         'PeakUtils',
-        'tweepy==3.6.0',
+        'tweepy==3.7.0',
         'metadata_parser==0.9.20',
         'hug==2.4.0',
         'hug-middleware-cors==1.0.0',
@@ -147,6 +148,7 @@ setup(
         'msgpack==0.5.6',
         'psutil>=5.4.2',
         'elevate>=0.1.3'
+
     ],
 
     # List additional groups of dependencies here (e.g. development
@@ -155,6 +157,8 @@ setup(
     # $ pip install -e .[dev,test]
     extras_require={
         'optionals': [
+            'pyqtgraph',
+            'PeakUtils',
             'flake8',
             'sphinx',
             'sphinx_rtd_theme',
@@ -188,5 +192,6 @@ setup(
     },
     ext_modules=[
         Extension('realhud', ['ava/realhud/realhud.c'],
+
                   **pkgconfig('gtk+-2.0 x11 xext'))
     ])

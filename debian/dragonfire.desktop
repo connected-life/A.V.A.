@@ -1,12 +1,12 @@
 [Desktop Entry]
-Version=1.0.1
+Version=1.0.2
 Type=Application
-Name=Dragonfire
-Comment=Virtual Assistant for Linux
-Exec=dragonfire
+Name=A.V.A.
+Comment=Augmented Virtual Assistant for Linux
+Exec=ava
 Categories=Utility;
 # desktop should run this in a terminal application
 Terminal=false
 StartupNotify=true
-StartupWMClass=dragonfire
+StartupWMClass=ava
 Icon=dragonfire_icon.png

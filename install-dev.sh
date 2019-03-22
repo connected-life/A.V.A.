@@ -59,3 +59,4 @@ CHECKSUM2="c775d819ffc06118053a48808003df84"
 #python3 -m spacy download en && \
 #pip3 install https://github.com/huggingface/neuralcoref-models/releases/download/en_coref_sm-3.0.0/en_coref_sm-3.0.0.tar.gz && \
 printf "import nltk\nnltk.download('names')\nnltk.download('brown')\nnltk.download('wordnet')\nnltk.download('punkt')" | python3 && echo -e "\n\n${GREEN}A.V.A. is successfully installed to your computer.${NC}\n"
+
